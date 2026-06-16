@@ -31,6 +31,10 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;transit
 }
 .btn-primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
 .btn-primary.small{font-size:.9rem;padding:9px 16px}
+.bar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn-ghost{background:#0e1730;border:1px solid var(--line);color:var(--muted);font-weight:700;border-radius:10px;padding:9px 14px;font-size:.85rem;transition:.15s}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ghost.small{padding:8px 12px;font-size:.8rem}
 
 /* ---------- HOME ---------- */
 .hero{max-width:760px;margin:5vh auto;text-align:center}
@@ -108,13 +112,27 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;transit
 .mode-tag.michelob{background:#3a2a12;color:#f0c674}
 .mode-tag.nutella{background:#2a1a3a;color:#d8a0ff}
 #draft-instruction{margin:6px 0 14px}
-.team-players{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.team-players .pcard{padding:11px}
-.team-players .pcard.disabled{opacity:.38;cursor:default;filter:grayscale(.5)}
-.team-players .pcard.disabled:hover{border-color:var(--line);transform:none;box-shadow:none}
-.team-players .pcard.dark .ovr .hid{font-size:.85rem;font-weight:800;color:var(--muted)}
-.team-players .pcard.dark .ovr{background:#0a1326;color:var(--muted)}
-.mine-tag{font-size:.65rem;color:var(--accent);font-weight:700;background:rgba(57,217,138,.12);padding:1px 6px;border-radius:6px;margin-left:4px}
+/* lista rolável de jogadores da seleção que caiu — linhas compactas */
+.team-players{display:flex;flex-direction:column;gap:8px;max-height:48vh;overflow-y:auto;padding-right:4px;-webkit-overflow-scrolling:touch}
+.prow{display:flex;align-items:center;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:10px 12px;cursor:pointer;transition:.12s}
+.prow:hover{border-color:var(--accent);transform:translateX(2px)}
+.prow.disabled{opacity:.4;cursor:default;filter:grayscale(.4)}
+.prow.disabled:hover{border-color:var(--line);transform:none}
+.prow.picking{border-color:var(--accent2);box-shadow:0 0 0 2px var(--accent2)}
+.prow-in{display:flex;align-items:center;gap:11px;width:100%}
+.prow-ovr{font-size:1.5rem;font-weight:900;color:var(--accent2);min-width:44px;text-align:center;
+  background:#0e1730;border-radius:9px;padding:6px 4px}
+.prow-ovr small{font-size:.8rem;color:var(--muted);font-weight:800}
+.prow-main{flex:1;min-width:0}
+.prow-name{font-weight:800;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow-stats{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.prow-stats .st{font-size:.64rem;font-weight:700;color:var(--txt);background:#0e1730;padding:2px 6px;border-radius:5px}
+.prow-stats .st i{color:#5b6b8f;font-style:normal;margin-right:3px}
+.pos-chip{font-size:.64rem;font-weight:800;color:var(--accent);background:rgba(57,217,138,.14);padding:2px 7px;border-radius:5px}
+.prow-go{font-size:1.15rem;color:var(--accent);font-weight:900;flex-shrink:0;margin-left:6px}
+.prow.disabled .prow-go{color:var(--muted)}
+.mine-tag{font-size:.62rem;color:var(--accent);font-weight:700;background:rgba(57,217,138,.12);padding:1px 6px;border-radius:6px;margin-left:4px}
 #draft-hint{margin-top:14px}
 .needs-strip{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .need-chip{font-size:.68rem;font-weight:800;letter-spacing:.4px;background:#0e1730;color:var(--muted);
@@ -122,7 +140,7 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;transit
 .need-chip.full{background:rgba(57,217,138,.14);color:var(--accent);border-color:transparent}
 .squad-row .nm small{display:block;color:var(--muted);font-size:.66rem;font-weight:600}
 
-@media(max-width:760px){.team-players{grid-template-columns:1fr 1fr}.mode-pick{grid-template-columns:1fr}}
+@media(max-width:760px){.mode-pick{grid-template-columns:1fr}}
 
 /* ---------- TACTICS ---------- */
 .tac-wrap{max-width:680px;margin:3vh auto;background:var(--card);border:1px solid var(--line);
@@ -235,12 +253,15 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;transit
 .mslot.filled .m-role{background:rgba(11,61,145,.7)}
 .mslot.filled::before{content:'';width:13px;height:13px;border-radius:50%;background:#fff;border:2px solid #0b3d91;margin-bottom:1px}
 .mslot.hi{cursor:pointer;animation:pulse 1s infinite;z-index:3}
-.mslot.hi .m-role{background:var(--accent);color:#062013}
+.mslot.hi .m-role{background:var(--accent);color:#062013;box-shadow:0 0 0 3px rgba(57,217,138,.35),0 0 16px rgba(57,217,138,.6);font-size:.66rem;padding:3px 9px}
+.mslot.hi::after{content:'toque';position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  font-size:.5rem;font-weight:800;color:var(--accent);white-space:nowrap}
 @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.18)}}
 
 /* ---------- SLOT CHOICE BAR ---------- */
 .slot-choice{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
 .slot-choice:empty{display:none}
+.slot-choice:not(:empty){background:rgba(57,217,138,.08);border:1px solid var(--accent);border-radius:12px;padding:12px}
 .sc-label{font-size:.92rem;color:var(--muted)}.sc-label b{color:#fff}
 .sc-chip{background:var(--accent);color:#062013;font-weight:800;padding:9px 17px;border-radius:8px;font-size:.92rem}
 .sc-chip:hover{filter:brightness(1.1)}
@@ -281,7 +302,8 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;transit
   #app{padding:12px}
   .bar{flex-wrap:wrap;gap:8px}
   .bar h2{font-size:1.15rem}
-  .bar .btn-primary.small{width:100%}
+  .bar-actions{width:100%}
+  .bar-actions .btn-primary.small,.bar-actions .btn-ghost.small{flex:1}
 
   /* HOME */
   .hero{margin:3vh auto}
@@ -294,39 +316,28 @@ button{font-family:inherit;cursor:pointer;border:none;border-radius:10px;transit
   .hero .btn-primary{width:100%}
   .how{margin-top:22px}
 
-  /* DRAFT — cards compactos */
+  /* DRAFT — lista rolável + campo grande pra tocar a posição */
   .drawn-head{flex-wrap:wrap;gap:6px}
-  .drawn-head h3{font-size:1.1rem}
+  .drawn-head h3{font-size:1.15rem}
   #draft-instruction{font-size:.85rem;margin:4px 0 10px}
-  .team-players{grid-template-columns:1fr 1fr;gap:8px}
-  .team-players .pcard{padding:8px}
-  .pcard-top{gap:8px;margin-bottom:7px}
-  .ovr{font-size:1.35rem;min-width:34px;padding:4px 2px}
-  .pname{font-size:.82rem;line-height:1.12}
-  .mine-tag{display:block;margin:2px 0 0}
-  .porigin{font-size:.7rem}
-  .bars{gap:4px}
-  .bars .bar{font-size:.6rem;gap:5px}
-  .bars .bar span{width:22px}
-  .bars .bar b{width:18px}
+  .team-players{max-height:42vh}
+  .prow{padding:11px 12px}
+  .prow-ovr{font-size:1.35rem;min-width:40px}
+  .prow-name{font-size:.95rem}
+  .prow-go{font-size:1.3rem}
 
-  /* mini-campo menor (só visualização; escolha é pela barra fixa) */
-  .draft-side .mini-pitch-wrap{aspect-ratio:4/5}
-  .mslot{width:46px}
-  .mslot .m-role{font-size:.54rem;padding:1px 4px}
-  .mslot .m-name{font-size:.56rem}
-  .mslot.filled::before{width:10px;height:10px}
+  /* mini-campo grande no celular (é onde se escala — toca na posição destacada) */
+  .draft-side .mini-pitch-wrap{aspect-ratio:3/4}
+  .mslot{width:52px}
+  .mslot .m-role{font-size:.6rem;padding:2px 6px}
+  .mslot .m-name{font-size:.6rem}
+  .mslot.hi .m-role{font-size:.72rem;padding:5px 11px}
+  .mslot.hi::after{font-size:.56rem;top:-16px}
 
-  /* BARRA FIXA de escolha de posição (sem rolar) */
-  .slot-choice:not(:empty){
-    position:fixed;left:0;right:0;bottom:0;z-index:60;margin:0;
-    background:rgba(14,23,48,.98);border-top:2px solid var(--accent);
-    padding:12px 12px calc(12px + env(safe-area-inset-bottom));
-    flex-wrap:wrap;align-items:center;justify-content:center;
-    box-shadow:0 -10px 28px rgba(0,0,0,.55)}
-  .slot-choice .sc-label{width:100%;text-align:center;margin-bottom:2px;font-size:.9rem}
-  .slot-choice .sc-chip{flex:1 1 22%;min-width:64px;padding:15px 8px;font-size:1.02rem}
-  .slot-choice .sc-cancel{padding:15px 16px}
+  /* banner de escalação (instrução + atalhos de posição) */
+  .slot-choice .sc-label{width:100%;text-align:center;margin-bottom:4px;font-size:.92rem}
+  .slot-choice .sc-chip{flex:1 1 24%;min-width:60px;padding:13px 8px;font-size:1rem}
+  .slot-choice .sc-cancel{flex-basis:100%;padding:11px}
 
   /* REVIEW */
   .review-grid{gap:16px}

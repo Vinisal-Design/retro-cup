@@ -197,21 +197,22 @@
   }
 
   function renderDraftRound() {
+    if (!G.pending) window.scrollTo({ top: 0, behavior: 'smooth' });   // nova seleção caiu → topo
     const team = G.draw;
     $('#draft-progress').textContent = `Jogador ${filledCount() + 1} de ${G.totalSlots} — ${G.formation}`;
     $('#draft-team-name').textContent = `${team.name} ${team.year}`;
 
-    // barra de escolha de posição (quando há jogador pendente p/ escalar)
+    // banner de escalação: ao escolher um jogador, instrui a tocar na posição (no campo destacado)
     const sc = $('#slot-choice'); sc.innerHTML = '';
     if (G.pending) {
       const open = openSlots(G.pending.p.pos);
-      sc.appendChild(el('span', 'sc-label', `Onde escalar <b>${G.pending.p.name}</b>?`));
+      sc.appendChild(el('span', 'sc-label', `Escalar <b>${G.pending.p.name}</b> — toque na posição destacada no campo 👇`));
       open.forEach(slot => {
         const chip = el('button', 'sc-chip', slot.role);
         chip.onclick = () => placePlayer(G.pending.p, G.pending.team, slot);
         sc.appendChild(chip);
       });
-      const cancel = el('button', 'sc-cancel', '✕');
+      const cancel = el('button', 'sc-cancel', 'cancelar');
       cancel.onclick = () => { G.pending = null; renderDraftRound(); };
       sc.appendChild(cancel);
     }
@@ -221,44 +222,44 @@
       const mine = G.pickedUids.has(team.id + '|' + p.name);
       const elig = needCount(p.pos) > 0 && !mine;
       const isPending = G.pending && G.pending.p === p;
-      const card = el('div', 'pcard' + (elig ? '' : ' disabled') + (hidden() ? ' dark' : '') + (isPending ? ' picking' : ''));
-      card.appendChild(playerCardInner(p, mine));
-      if (elig) card.onclick = () => choosePlayer(p, team);
-      wrap.appendChild(card);
+      const row = el('div', 'prow' + (elig ? '' : ' disabled') + (isPending ? ' picking' : ''));
+      row.appendChild(playerCardInner(p, mine));
+      if (elig) row.onclick = () => choosePlayer(p, team);
+      wrap.appendChild(row);
     });
 
     const needTxt = ['GK', 'DEF', 'MID', 'ATT'].filter(c => needCount(c) > 0)
       .map(c => `${needCount(c)} ${catLabel(c)}${needCount(c) > 1 ? 's' : ''}`).join(' · ');
-    $('#draft-hint').textContent = needTxt ? 'Ainda faltam: ' + needTxt
-      : (G.pending ? 'Clique numa posição (no campo ou nos botões acima).' : '');
+    $('#draft-hint').textContent = G.pending ? '' : (needTxt ? 'Ainda faltam: ' + needTxt : '');
 
     renderSquadPreview();
   }
 
-  function statBars(p) {
+  function statChips(p) {
+    if (hidden()) return '';
     const rows = p.pos === 'GK'
       ? [['VEL', p.pac], ['PAS', p.pas], ['GOL', p.gk]]
       : [['VEL', p.pac], ['PAS', p.pas], ['FIN', p.sho], ['DEF', p.def]];
-    return rows.map(([k, v]) =>
-      `<div class="bar"><span>${k}</span><div class="track"><i style="width:${v}%"></i></div><b>${v}</b></div>`).join('');
+    return rows.map(([k, v]) => `<span class="st"><i>${k}</i>${v}</span>`).join('');
   }
   function playerCardInner(p, mine) {
-    const c = el('div', 'pcard-in');
+    const c = el('div', 'prow-in');
     c.innerHTML = `
-      <div class="pcard-top">
-        <div class="ovr">${hidden() ? '<span class="hid">' + p.pos + '</span>' : p.ovr}</div>
-        <div class="pmeta"><div class="pname">${p.name}${mine ? ' <span class="mine-tag">✓ no elenco</span>' : ''}</div>
-          <div class="porigin">${catLabel(p.pos)}</div></div>
+      <div class="prow-ovr">${hidden() ? '<small>' + p.pos + '</small>' : p.ovr}</div>
+      <div class="prow-main">
+        <div class="prow-name">${p.name}${mine ? ' <span class="mine-tag">✓ escalado</span>' : ''}</div>
+        <div class="prow-stats"><span class="pos-chip">${catLabel(p.pos)}</span>${statChips(p)}</div>
       </div>
-      ${hidden() ? '' : `<div class="bars">${statBars(p)}</div>`}`;
+      <div class="prow-go">${mine ? '✓' : '➜'}</div>`;
     return c;
   }
 
   function choosePlayer(p, team) {
-    const open = openSlots(p.pos);
-    if (open.length === 1) { placePlayer(p, team, open[0]); return; }
-    G.pending = { p, team };          // várias posições possíveis → usuário escolhe
+    // dinâmica única p/ todos: seleciona → vai pro campo → destaca posições → toca pra escalar
+    G.pending = { p, team };
     renderDraftRound();
+    const pitch = document.getElementById('draft-pitch');
+    if (pitch) pitch.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
   function placePlayer(p, team, slot) {
     slot.player = Object.assign({}, p, {
@@ -322,7 +323,8 @@
 
   // ---------------------------------------------------------- TOURNAMENT
   function randTactics() {
-    return { mentality: [-1, 0, 0, 1][Math.floor(Math.random() * 4)], pressing: Math.random() < .5 ? 1 : 2, tempo: Math.random() < .5 ? 1 : 1.3 };
+    // IA competente: postura equilibrada/ofensiva, pressão alta, ritmo bom — dá trabalho
+    return { mentality: [0, 0, 1, 1][Math.floor(Math.random() * 4)], pressing: 2, tempo: [1, 1.3, 1.3][Math.floor(Math.random() * 3)] };
   }
   function makeTie(a, b, ko, group) {
     return { a, b, ga: null, gb: null, pa: 0, pb: 0, winner: null, played: false, ko: !!ko, group: group || null };
@@ -422,6 +424,7 @@
       fx.appendChild(f);
     }));
 
+    $('#btn-auto-g').onclick = autoPlayAll;
     const userTie = userTieThisRound();
     const btn = $('#btn-group-action');
     if (userTie && !userTie.played) {
@@ -442,13 +445,23 @@
     else renderGroup();
   }
 
-  function finishGroups() {
+  function buildKnockout() {
     const [A, B] = G.groups.map(sortedTable);
-    const A1 = A[0].team, A2 = A[1].team, B1 = B[0].team, B2 = B[1].team;
-    G.ko = [[makeTie(A1, B2, true), makeTie(B1, A2, true)], []];
+    G.ko = [[makeTie(A[0].team, B[1].team, true), makeTie(B[0].team, A[1].team, true)], []];
     G.phase = 'ko'; G.koRound = 0;
+  }
+  function finishGroups() {
+    buildKnockout();
     if (!userInKo()) { simKnockoutToEnd(); return; }
     renderKnockout();
+  }
+
+  // MODO AUTO: simula tudo (inclusive os jogos do usuário) e avança de fase até o campeão
+  function autoPlayAll() {
+    if (G.match) { G.match.destroy(); G.match = null; }
+    while (G.phase === 'group' && G.round < G.totalRounds) { simRoundRest(); G.round++; }
+    if (G.phase === 'group') buildKnockout();
+    simKnockoutToEnd();   // semis + final → showChampion
   }
 
   // ---------------------------------------------------------- KNOCKOUT
@@ -487,6 +500,7 @@
       if (r === 1 && champion()) col.appendChild(el('div', 'champion-tag', '🏆 ' + champion().name));
       wrap.appendChild(col);
     });
+    $('#btn-auto-k').onclick = autoPlayAll;
     const userTie = findUserKoTie();
     const btn = $('#btn-play-round');
     if (userTie) { btn.style.display = 'inline-block'; btn.textContent = `▶ Jogar — ${opp(userTie).name}`; btn.onclick = () => goTactics(userTie); }

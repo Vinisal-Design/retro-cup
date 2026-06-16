@@ -318,7 +318,7 @@
     _steer(p, tx, ty, speedFactor) {
       const dx = tx - p.x, dy = ty - p.y;
       const d = Math.hypot(dx, dy) || 1;
-      const maxV = (95 + p.pac * 1.0) * speedFactor; // px/s
+      const maxV = (66 + p.pac * 1.28) * speedFactor; // px/s — velocidade reflete o atributo PAC
       const arrive = d < 24 ? d / 24 : 1;            // desacelera ao chegar (não tremer no alvo)
       p.tvx = (dx / d) * maxV * arrive;
       p.tvy = (dy / d) * maxV * arrive;
@@ -375,8 +375,8 @@
       // chute de média distância (probabilístico)
       if (dGoal < range && angleOk && !shotLock) {
         const close = 1 - dGoal / range;
-        let shootP = 0.02 + close * 0.14 + (c.sho / 99) * 0.04 + (tac.mentality || 0) * 0.01;
-        if (Math.random() < clamp(shootP, 0.02, 0.4)) { this._shoot(c); return; }
+        let shootP = 0.012 + close * 0.10 + (c.sho / 99) * 0.04 + (tac.mentality || 0) * 0.01;
+        if (Math.random() < clamp(shootP, 0.012, 0.38)) { this._shoot(c); return; }
       }
 
       // passe de construção (mais futebol, menos drible solo)
@@ -433,7 +433,7 @@
     }
 
     _pass(c, target) {
-      const noise = (1 - c.pas / 99) * 26;
+      const noise = (1 - c.pas / 99) * 40;   // PAS baixo → passe impreciso (intercepta mais)
       const tx = target.x + rnd(-noise, noise);
       const ty = target.y + rnd(-noise, noise);
       const d = dist(c.x, c.y, tx, ty);
@@ -450,7 +450,7 @@
       const goalX = this._oppGoalX(c.team);
       // mira dentro da meta + pequeno erro proporcional à finalização
       const aimY = (this.goalY0 + this.goalY1) / 2 + rnd(-this.goalH * 0.40, this.goalH * 0.40);
-      const miss = (1 - c.sho / 99) * 26;
+      const miss = (1 - c.sho / 99) * 42;   // SHO baixo → erra muito mais a pontaria
       const ty = clamp(aimY + rnd(-miss, miss), this.goalY0 - 18, this.goalY1 + 18);
       const tx = goalX + (c.team === 0 ? 12 : -12);
       const dx = tx - c.x, dy = ty - c.y, dd = Math.hypot(dx, dy) || 1;
@@ -476,7 +476,7 @@
         if (d < nd) { nd = d; near = q; }
       }
       if (near && nd < 42) ty += (c.y - near.y) * 0.9 + (c.y < goalY ? -10 : 10);
-      const speed = (115 + c.pac * 1.0);
+      const speed = (78 + c.pac * 1.35);   // conduz mais rápido quem tem mais PAC
       const dx = tx - c.x, dy = ty - c.y, dd = Math.hypot(dx, dy) || 1;
       c.tvx = (dx / dd) * speed;
       c.tvy = (dy / dd) * speed;
@@ -516,8 +516,9 @@
       c.chalT -= DT;
       if (c.chalT > 0) return;
       c.chalT = 0.28;                        // um lance a cada ~0.28s
-      const atk = (c.pac + c.pas) / 2 + c.sho * 0.1 + rnd(0, 34);
-      const dfn = ch.def + 8 + rnd(0, 40);
+      // menos sorte, mais atributo: DEF do marcador vs controle (PAC+PAS) do portador
+      const atk = (c.pac + c.pas) / 2 + c.sho * 0.1 + rnd(0, 24);
+      const dfn = ch.def + 6 + rnd(0, 24);
       if (dfn > atk) {
         if (Math.random() < 0.14) { this._foul(c, ch); }   // falta do defensor
         else {                                              // roubada limpa
@@ -584,8 +585,10 @@
       if (!gk) return false;
       const dy = Math.abs(gk.y - b.y);
       const power = Math.hypot(b.vx, b.vy) / 760;            // 0..~1 (chutes fortes mais difíceis)
-      let save = 0.85 + gk.gk / 320 - (dy / (this.goalH * 0.7)) * 0.34 - power * 0.05;
-      if (Math.random() > clamp(save, 0.06, 0.955)) return false; // gol
+      // qualidade do goleiro pesa de verdade (centrado em ~90% p/ GK médio 83):
+      // GK 76→~84% · 83→~90% · 93→~97% (chute central); canto/forte reduzem
+      let save = 0.96 + (gk.gk - 83) / 100 * 0.9 - (dy / (this.goalH * 0.7)) * 0.20 - power * 0.04;
+      if (Math.random() > clamp(save, 0.05, 0.985)) return false; // gol
       // defendeu
       const dir = defendSide === 0 ? 1 : -1;
       b.x = defendSide === 0 ? this.f.x0 + 14 : this.f.x1 - 14;

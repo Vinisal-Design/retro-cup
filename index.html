@@ -212,7 +212,10 @@
   <section id="screen-group" class="screen">
     <header class="bar">
       <h2>Fase de grupos — Rodada <span id="group-round" class="accent">1</span>/<span id="group-rounds">4</span></h2>
-      <button id="btn-group-action" class="btn-primary small"></button>
+      <div class="bar-actions">
+        <button id="btn-auto-g" class="btn-ghost small" title="Simular o torneio inteiro">⏩ Auto até o fim</button>
+        <button id="btn-group-action" class="btn-primary small"></button>
+      </div>
     </header>
     <div class="groups">
       <div id="groupA" class="group-box"></div>
@@ -228,7 +231,10 @@
   <section id="screen-bracket" class="screen">
     <header class="bar">
       <h2>Chave da Copa — <span id="bracket-round" class="accent"></span></h2>
-      <button id="btn-play-round" class="btn-primary small"></button>
+      <div class="bar-actions">
+        <button id="btn-auto-k" class="btn-ghost small" title="Simular o resto do torneio">⏩ Auto até o fim</button>
+        <button id="btn-play-round" class="btn-primary small"></button>
+      </div>
     </header>
     <div id="bracket-rounds" class="bracket"></div>
   </section>
