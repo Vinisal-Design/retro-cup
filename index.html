@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RETRO CUP — Football Manager Relâmpago</title>
+  <meta name="description" content="Monte seu Dream Team num draft de lendas de seleções históricas e dispute a Copa em simulações 2D estilo futebol de botão. Tática vence talento.">
+  <meta name="theme-color" content="#0a0f1c">
+  <meta name="color-scheme" content="dark">
+  <meta property="og:title" content="RETRO CUP">
+  <meta property="og:description" content="Draft de lendas + simulação 2D de futebol. Dispute a Copa.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>⚽</text></svg>">
+  <link rel="preload" as="style" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ====================== HOME ====================== -->
+  <section id="screen-home" class="screen active">
+    <div class="hero">
+      <div class="badge">⚽ 2D · VISÃO DE BOTÃO</div>
+      <h1>RETRO <span>CUP</span></h1>
+      <p class="lede">Monte seu Dream Team em um <b>draft estilo FIFA</b> com lendas de <span id="teams-count">14</span> seleções históricas — Brasil 70, Alemanha 74, Argentina 86, França 98… — e dispute a copa em simulações 2D onde <b>tática vence talento</b>.</p>
+
+      <div class="setup">
+        <label>Nome do time
+          <input id="input-team-name" type="text" placeholder="Meu Dream Team" maxlength="22">
+        </label>
+        <label>Cor
+          <input id="input-color" type="color" value="#e11d48">
+        </label>
+        <label>Formação
+          <select id="select-formation">
+            <option>4-4-2</option><option>4-3-3</option><option>3-5-2</option>
+            <option>4-5-1</option><option>5-3-2</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="mode-pick">
+        <button class="mode-card on" data-mode="nutella">
+          <span class="mode-name">🍫 Nutella</span>
+          <span class="mode-desc">Mostra as notas (OVR) dos jogadores. Modo fácil.</span>
+        </button>
+        <button class="mode-card" data-mode="michelob">
+          <span class="mode-name">🥃 Michelob</span>
+          <span class="mode-desc">Notas escondidas. Você escolhe no olho — às escuras.</span>
+        </button>
+      </div>
+
+      <button id="btn-start" class="btn-primary">Iniciar Draft →</button>
+
+      <div class="how">
+        <div><b>1. Draft</b><br>Escolha 11 lendas, 1 a 1, de eras e seleções diferentes.</div>
+        <div><b>2. Tática</b><br>Defina mentalidade, pressão e ritmo antes de cada jogo.</div>
+        <div><b>3. Copa</b><br>Quartas → Semi → Final. Empate? Pênaltis.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== DRAFT ====================== -->
+  <section id="screen-draft" class="screen">
+    <header class="bar">
+      <h2>Draft do Dream Team</h2>
+      <span id="draft-progress" class="muted"></span>
+    </header>
+    <div class="draft-grid">
+      <div class="draft-main">
+        <div class="drawn-head">
+          <h3>Caiu: <span id="draft-team-name" class="accent">—</span></h3>
+          <span id="draft-mode-tag" class="mode-tag"></span>
+        </div>
+        <p class="muted" id="draft-instruction">Escolha <b>1 jogador</b> desta seleção para o seu elenco.</p>
+        <div id="slot-choice" class="slot-choice"></div>
+        <div id="draft-team-players" class="team-players"></div>
+        <p id="draft-hint" class="muted small"></p>
+      </div>
+      <aside class="draft-side">
+        <div class="squad-head">
+          <span>Sua escalação</span>
+          <span class="rating-pill">OVR <b id="squad-rating">--</b></span>
+        </div>
+        <div id="needs-strip" class="needs-strip"></div>
+        <div id="draft-pitch" class="mini-pitch-wrap"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ====================== TACTICS ====================== -->
+  <section id="screen-tactics" class="screen">
+    <div class="tac-wrap">
+      <h2>Preleção tática</h2>
+      <p class="muted"><b id="tac-stage" class="accent"></b> · Adversário: <b id="tac-opp"></b> · OVR <b id="tac-opp-rating"></b> &nbsp;|&nbsp; Seu time OVR <b id="tac-my-rating"></b></p>
+
+      <div class="tac-block">
+        <h4>Mentalidade</h4>
+        <div class="tac-row">
+          <button class="tac-opt" data-k="mentality" data-v="-1">🛡️ Retranca</button>
+          <button class="tac-opt" data-k="mentality" data-v="0">⚖️ Equilíbrio</button>
+          <button class="tac-opt" data-k="mentality" data-v="1">⚔️ Ofensivo</button>
+        </div>
+      </div>
+      <div class="tac-block">
+        <h4>Pressão</h4>
+        <div class="tac-row">
+          <button class="tac-opt" data-k="pressing" data-v="0">Recuada</button>
+          <button class="tac-opt" data-k="pressing" data-v="1">Média</button>
+          <button class="tac-opt" data-k="pressing" data-v="2">Alta</button>
+        </div>
+      </div>
+      <div class="tac-block">
+        <h4>Ritmo de jogo</h4>
+        <div class="tac-row">
+          <button class="tac-opt" data-k="tempo" data-v="0.7">Cadenciado</button>
+          <button class="tac-opt" data-k="tempo" data-v="1">Normal</button>
+          <button class="tac-opt" data-k="tempo" data-v="1.3">Toque rápido</button>
+        </div>
+      </div>
+
+      <button id="btn-kickoff" class="btn-primary">Apitar início ⚽</button>
+      <p class="muted small">Dica: contra um time superior, retranca + pressão alta + toque rápido pode segurar e sair no contra-ataque.</p>
+    </div>
+  </section>
+
+  <!-- ====================== MATCH ====================== -->
+  <section id="screen-match" class="screen">
+    <div class="scoreboard">
+      <span id="sb-home" class="sb-team">Casa</span>
+      <span id="sb-score" class="sb-score">0 - 0</span>
+      <span id="sb-away" class="sb-team">Fora</span>
+      <span id="sb-clock" class="sb-clock">0'</span>
+    </div>
+
+    <div class="match-area">
+      <div class="pitch-wrap">
+        <canvas id="pitch" width="900" height="560"></canvas>
+        <div id="kickoff-overlay" class="kickoff-overlay">
+          <div class="ko-card">
+            <p id="ko-teams" class="ko-teams"></p>
+            <button id="btn-whistle" class="btn-whistle">🔊 Apitar início</button>
+            <p class="muted small">Toque o apito para a bola rolar.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="match-side">
+        <div class="ctrl-block">
+          <h4>Velocidade</h4>
+          <div class="ctrl-row">
+            <button class="spd" data-s="0">⏸</button>
+            <button class="spd" data-s="1">▶ Lento</button>
+            <button class="spd on" data-s="2">▶▶ Normal</button>
+            <button class="spd" data-s="3">▶▶▶ Rápido</button>
+            <button class="spd" data-s="4">⚡ Turbo</button>
+          </div>
+        </div>
+        <div class="ctrl-block">
+          <h4>Mentalidade (ao vivo)</h4>
+          <div class="ctrl-row">
+            <button class="mtac" data-k="mentality" data-v="-1">🛡️</button>
+            <button class="mtac" data-k="mentality" data-v="0">⚖️</button>
+            <button class="mtac" data-k="mentality" data-v="1">⚔️</button>
+          </div>
+        </div>
+        <div class="ctrl-block">
+          <h4>Pressão (ao vivo)</h4>
+          <div class="ctrl-row">
+            <button class="mtac" data-k="pressing" data-v="0">Baixa</button>
+            <button class="mtac" data-k="pressing" data-v="1">Média</button>
+            <button class="mtac" data-k="pressing" data-v="2">Alta</button>
+          </div>
+        </div>
+        <div class="ctrl-block grow">
+          <h4>Lance a lance</h4>
+          <div id="match-events" class="events"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="match-end" class="match-end">
+      <div class="me-card">
+        <h2>Fim de jogo</h2>
+        <p id="me-score" class="me-score"></p>
+        <p id="me-pens" class="me-pens"></p>
+        <p id="me-result" class="me-result"></p>
+        <button id="btn-continue" class="btn-primary">Continuar →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== REVIEW (escalação pronta) ====================== -->
+  <section id="screen-review" class="screen">
+    <header class="bar">
+      <h2>Sua seleção está pronta — <span id="review-name" class="accent"></span></h2>
+      <button id="btn-to-cup" class="btn-primary small">Disputar a Copa →</button>
+    </header>
+    <div class="review-grid">
+      <div id="review-pitch" class="mini-pitch-wrap big"></div>
+      <aside class="review-side">
+        <div class="ratings-row">
+          <div class="rstat"><span>ATAQUE</span><b id="rev-ata">--</b></div>
+          <div class="rstat"><span>DEFESA</span><b id="rev-def">--</b></div>
+          <div class="rstat ovr"><span>GERAL</span><b id="rev-ovr">--</b></div>
+        </div>
+        <div id="review-list" class="squad-list"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ====================== GROUP STAGE ====================== -->
+  <section id="screen-group" class="screen">
+    <header class="bar">
+      <h2>Fase de grupos — Rodada <span id="group-round" class="accent">1</span>/<span id="group-rounds">4</span></h2>
+      <button id="btn-group-action" class="btn-primary small"></button>
+    </header>
+    <div class="groups">
+      <div id="groupA" class="group-box"></div>
+      <div id="groupB" class="group-box"></div>
+    </div>
+    <div class="fixtures">
+      <h4>Jogos da rodada <small class="muted">(os 2 primeiros de cada grupo avançam)</small></h4>
+      <div id="round-fixtures"></div>
+    </div>
+  </section>
+
+  <!-- ====================== BRACKET ====================== -->
+  <section id="screen-bracket" class="screen">
+    <header class="bar">
+      <h2>Chave da Copa — <span id="bracket-round" class="accent"></span></h2>
+      <button id="btn-play-round" class="btn-primary small"></button>
+    </header>
+    <div id="bracket-rounds" class="bracket"></div>
+  </section>
+
+  <!-- ====================== CHAMPION ====================== -->
+  <section id="screen-champion" class="screen">
+    <div class="champ">
+      <div class="trophy">🏆</div>
+      <h1 id="champ-title">Campeão!</h1>
+      <div id="champ-name" class="champ-name"></div>
+      <p id="champ-sub" class="muted"></p>
+      <button id="btn-restart" class="btn-primary">Jogar de novo</button>
+    </div>
+  </section>
+
+</div>
+
+<script defer src="js/teams.js"></script>
+<script defer src="js/engine.js"></script>
+<script defer src="js/main.js"></script>
+</body>
+</html>
