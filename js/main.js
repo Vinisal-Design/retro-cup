@@ -126,6 +126,16 @@
     };
   }
 
+  // mantém a tela do celular sempre ligada (Screen Wake Lock — requer HTTPS)
+  let _wakeLock = null, _wantAwake = false;
+  async function keepAwake() {
+    _wantAwake = true;
+    try { if ('wakeLock' in navigator) _wakeLock = await navigator.wakeLock.request('screen'); } catch (e) { /* sem suporte */ }
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (_wantAwake && document.visibilityState === 'visible') keepAwake();
+  });
+
   // ============================================================
   const G = {
     formation: '4-4-2', mode: 'nutella',
@@ -162,6 +172,7 @@
   const filledCount = () => G.slots.filter(s => s.player).length;
 
   function startDraft() {
+    keepAwake();                       // 1º gesto do usuário → mantém a tela ligada
     G.userName = ($('#input-team-name').value || 'Meu Dream Team').slice(0, 22);
     G.userColor = $('#input-color').value || '#e11d48';
     G.formation = $('#select-formation').value;
@@ -544,6 +555,7 @@
     $('#ko-teams').textContent = `${home.name} × ${away.name}`;
     $$('.spd').forEach(b => b.classList.toggle('on', false));
     $('#btn-whistle').onclick = () => {
+      keepAwake();
       whistle();
       ov.style.display = 'none';
       setSpeed(2);
